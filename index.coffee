@@ -8,6 +8,7 @@ hogan = require 'hogan.js'
 class XeLatex extends EventEmitter
 
 	constructor: (@outputDirectory)->
+		@output = ''
 
 	process :(file)->
 		xelatex = spawn 'xelatex', ['-interaction','nonstopmode','-output-directory',@outputDirectory,file]
@@ -16,7 +17,9 @@ class XeLatex extends EventEmitter
 				filename = path.basename file, '.tex'
 				@emit 'done',path.join @outputDirectory,"#{filename}.pdf"
 			else
-				@emit 'error',new Error "xelatex exits with #{code}"
+				@emit 'error',new Error "xelatex exits with #{code}\n#{@output}"
+		xelatex.stdout.on 'data', (data)=>
+			@output += data.toString()
 
 
 rmdir = (dir,callback) ->

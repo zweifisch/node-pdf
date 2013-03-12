@@ -22,20 +22,24 @@
 
     function XeLatex(outputDirectory) {
       this.outputDirectory = outputDirectory;
+      this.output = '';
     }
 
     XeLatex.prototype.process = function(file) {
       var xelatex,
         _this = this;
       xelatex = spawn('xelatex', ['-interaction', 'nonstopmode', '-output-directory', this.outputDirectory, file]);
-      return xelatex.on('exit', function(code) {
+      xelatex.on('exit', function(code) {
         var filename;
         if (code === 0) {
           filename = path.basename(file, '.tex');
           return _this.emit('done', path.join(_this.outputDirectory, "" + filename + ".pdf"));
         } else {
-          return _this.emit('error', new Error("xelatex exits with " + code));
+          return _this.emit('error', new Error("xelatex exits with " + code + "\n" + _this.output));
         }
+      });
+      return xelatex.stdout.on('data', function(data) {
+        return _this.output += data.toString();
       });
     };
 
