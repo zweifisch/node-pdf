@@ -1,6 +1,6 @@
 {
   "name": "node-pdf",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "pdf generation using mustache and xelatex",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,6 @@
   "license": "BSD",
   "dependencies": {
     "temp": "~0.5.0",
-    "mu2": "~0.5.17"
+    "hogan.js": "~2.0.0"
   }
 }

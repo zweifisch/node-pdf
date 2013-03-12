@@ -3,7 +3,7 @@ path = require 'path'
 {spawn} = require 'child_process'
 {EventEmitter} = require 'events'
 temp = require 'temp'
-mu = require 'mu2'
+hogan = require 'hogan.js'
 
 class XeLatex extends EventEmitter
 
@@ -31,16 +31,24 @@ rmdir = (dir,callback) ->
 				if removedFiles is files.length
 					fs.rmdir dir,callback
 
+cachedTemplates = {}
 
 render = (source,data,callback)->
 
-	rs = mu.compileAndRender source, data
+	if source not of cachedTemplates
+		fs.readFile source,'utf-8',(err,sourceContent)=>
+			renderFromTemplate (cachedTemplates[source] = hogan.compile sourceContent),data,callback
+	else
+		renderFromTemplate cachedTemplates[source],data,callback
+
+renderFromTemplate = (template,data,callback)->
+
+	if callback.debug
+		return template.render data
 
 	temp.mkdir 'xelatex', (err, dirPath)->
 
-		ws = fs.createWriteStream path.join(dirPath, 'output.tex')
-		rs.pipe ws
-		ws.on 'close',->
+		fs.writeFile path.join(dirPath, 'output.tex'), (template.render data),->
 
 			xelatex = new XeLatex dirPath
 			xelatex.process path.join(dirPath, 'output.tex')
