@@ -79,11 +79,10 @@
   };
 
   renderFromTemplate = function(template, data, callback) {
-    if (callback.debug) {
-      return template.render(data);
-    }
     return temp.mkdir('xelatex', function(err, dirPath) {
-      return fs.writeFile(path.join(dirPath, 'output.tex'), template.render(data), function() {
+      var tex;
+      tex = template.render(data);
+      return fs.writeFile(path.join(dirPath, 'output.tex'), tex, function() {
         var xelatex;
         xelatex = new XeLatex(dirPath);
         xelatex.process(path.join(dirPath, 'output.tex'));
@@ -96,7 +95,7 @@
           return callback(null, readStream);
         });
         return xelatex.on('error', function(err) {
-          return callback(err);
+          return callback(err, tex);
         });
       });
     });

@@ -13,7 +13,8 @@
   render('./matrix.tex', data, function(err, rs) {
     var ws;
     if (err) {
-      return console.log(err);
+      console.log(err);
+      return console.log(rs);
     } else {
       ws = fs.createWriteStream('./output.pdf');
       return rs.pipe(ws);

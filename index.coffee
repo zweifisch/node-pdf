@@ -43,24 +43,22 @@ render = (source,data,callback)->
 
 renderFromTemplate = (template,data,callback)->
 
-	if callback.debug
-		return template.render data
+	temp.mkdir 'xelatex',(err,dirPath)->
 
-	temp.mkdir 'xelatex', (err, dirPath)->
-
-		fs.writeFile path.join(dirPath, 'output.tex'), (template.render data),->
+		tex = template.render data
+		fs.writeFile path.join(dirPath,'output.tex'),tex,->
 
 			xelatex = new XeLatex dirPath
-			xelatex.process path.join(dirPath, 'output.tex')
+			xelatex.process path.join(dirPath,'output.tex')
 
-			xelatex.on 'done', (path)->
+			xelatex.on 'done',(path)->
 				readStream = fs.createReadStream path
 				readStream.on 'end',->
-					rmdir dirPath, ->
+					rmdir dirPath,->
 				callback null,readStream
 
-			xelatex.on 'error', (err)->
-				callback err
+			xelatex.on 'error',(err)->
+				callback err,tex
 
 
 module.exports =
